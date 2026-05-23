@@ -160,18 +160,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   _loseLife() {
-    this._gameOver = true;
     this._lives--;
-    this._player.startInvincibility(CONFIG.invincibilityDuration);
     if (this._lives <= 0) {
+      this._gameOver = true;
+      const isNewRecord = this._score.score > this._score.highScore;
       this._score.saveHighScore();
       this.time.delayedCall(600, () => {
         this.scene.start('GameOverScene', {
           score: this._score.score,
           highScore: this._score.highScore,
+          isNewRecord,
         });
       });
     }
+    this._player.startInvincibility(CONFIG.invincibilityDuration);
   }
 
   _updateHudHearts() {

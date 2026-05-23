@@ -19,6 +19,8 @@ export class Player {
     this._draw();
     this.graphics.setPosition(x, y);
     if (this._numberText) this._numberText.setPosition(x, y - 2);
+    this.graphics.setDepth(5);
+    if (this._numberText) this._numberText.setDepth(5);
   }
 
   _draw() {
