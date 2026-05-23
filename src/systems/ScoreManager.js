@@ -7,8 +7,7 @@ export class ScoreManager {
     this.score = 0;
     this._distancePx = 0;
     this._distanceScore = 0; // points from distance only
-    this._bonusScore = 0;    // points from balls + goal bonuses
-    this._lastGoalAt = 0;
+    this._bonusScore = 0;    // points from balls
     // localStorage.getItem returns null when missing; parseInt(null) = NaN, so fallback to '0'
     this.highScore = parseInt(localStorage.getItem(LS_KEY) ?? '0', 10);
   }
@@ -22,18 +21,6 @@ export class ScoreManager {
   collectBall() {
     this._bonusScore += this._cfg.ballBonus;
     this.score += this._cfg.ballBonus;
-  }
-
-  checkGoal() {
-    const milestone = Math.floor(this.score / this._cfg.goalInterval);
-    const lastMilestone = Math.floor(this._lastGoalAt / this._cfg.goalInterval);
-    if (milestone > lastMilestone) {
-      this._lastGoalAt = this.score;
-      this._bonusScore += this._cfg.goalBonus;
-      this.score += this._cfg.goalBonus;
-      return true;
-    }
-    return false;
   }
 
   saveHighScore() {

@@ -59,6 +59,7 @@ Vijf onafhankelijke verbeteringen aan de bestaande Phaser 3 endless runner. Elke
 - Voeg een getter `get justLeveledUp()` toe aan `DifficultyManager` die `true` retourneert op de eerste `update()`-aanroep na een level-stap, daarna reset naar `false`.
 - In `GameScene.update()`: check `if (this._difficulty.justLeveledUp) this._playLevelUpAnimation(this._difficulty.level)`.
 - Implementeer `_playLevelUpAnimation(level)` analoog aan `_playGoalAnimation()`: tekst `"LEVEL ${level}! 🔥"`, goudgeel, depth 20, tween omhoog + fade-out in 1400ms.
+- Voeg een level-indicator toe aan de HUD (links naast de hartjes): tekst `"LVL 1"`, depth 10, scrollFactor 0. Update elke frame via `this._levelText.setText('LVL ' + this._difficulty.level)` in `GameScene.update()`.
 
 ---
 

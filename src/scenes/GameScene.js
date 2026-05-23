@@ -95,7 +95,6 @@ export class GameScene extends Phaser.Scene {
     this._updateEntities(delta);
     this._checkCollisions();
     this._score.addDistance(this._difficulty.scrollSpeed * (delta / 1000));
-    if (this._score.checkGoal()) this._playGoalAnimation();
     this._scoreText.setText(this._score.score + 'm');
     this._levelText.setText('LVL ' + this._difficulty.level);
     this._updateHudHearts();
@@ -174,7 +173,7 @@ export class GameScene extends Phaser.Scene {
     const py = this._player.y;
     const s = CONFIG.player.scale;
 
-    // Shields can be collected even while invincible
+    // Shields and balls can be collected even while invincible/shielded
     for (let i = this._shields.length - 1; i >= 0; i--) {
       const sh = this._shields[i];
       if (Phaser.Math.Distance.Between(px, py, sh.x, sh.y) < 24 * s) {
@@ -185,21 +184,22 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    for (let i = this._balls.length - 1; i >= 0; i--) {
+      const b = this._balls[i];
+      if (Phaser.Math.Distance.Between(px, py, b.x, b.y) < 28 * s) {
+        this._score.collectBall();
+        this._playGoalAnimation();
+        b.destroy();
+        this._balls.splice(i, 1);
+      }
+    }
+
     if (this._player.isInvincible) return;
 
     for (const d of this._defenders) {
       if (Phaser.Math.Distance.Between(px, py, d.x, d.y) < 34 * s) {
         this._loseLife();
         return;
-      }
-    }
-
-    for (let i = this._balls.length - 1; i >= 0; i--) {
-      const b = this._balls[i];
-      if (Phaser.Math.Distance.Between(px, py, b.x, b.y) < 28 * s) {
-        this._score.collectBall();
-        b.destroy();
-        this._balls.splice(i, 1);
       }
     }
   }
@@ -229,7 +229,7 @@ export class GameScene extends Phaser.Scene {
 
   _playGoalAnimation() {
     const { width, height } = this.scale;
-    const txt = this.add.text(width / 2, height / 2, '⚽ GOAL! +100', {
+    const txt = this.add.text(width / 2, height / 2, '⚽ GOAL!', {
       fontSize: '36px',
       fontFamily: 'Arial Black, sans-serif',
       color: '#FFD700',
