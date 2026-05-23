@@ -48,4 +48,20 @@ describe('ScoreManager', () => {
     const sm2 = new ScoreManager(cfg);
     expect(sm2.highScore).toBe(100);
   });
+
+  it('preserves ball bonus after subsequent addDistance call', () => {
+    sm.collectBall(); // +10
+    sm.addDistance(5); // +1 distance point → should be 11 total, not 1
+    expect(sm.score).toBe(11);
+  });
+
+  it('does not overwrite high score when current score is lower', () => {
+    sm.addDistance(500); // score = 100
+    sm.saveHighScore();  // highScore = 100
+    const sm2 = new ScoreManager(cfg);
+    sm2.addDistance(50); // score = 10
+    sm2.saveHighScore();  // should not overwrite
+    const sm3 = new ScoreManager(cfg);
+    expect(sm3.highScore).toBe(100);
+  });
 });
