@@ -37,4 +37,11 @@ describe('DifficultyManager', () => {
     dm.update(15000);
     expect(dm.level).toBe(1);
   });
+
+  it('multi-level jump advances correctly', () => {
+    dm.update(90000);
+    expect(dm.level).toBe(4);
+    expect(dm.scrollSpeed).toBe(290);
+    expect(dm.spawnInterval).toBe(1750);
+  });
 });
