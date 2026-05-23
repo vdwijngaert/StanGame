@@ -23,7 +23,7 @@ export class Player {
     this.y = y;
     this._draw();
     this.graphics.setPosition(x, y);
-    this._numberText.setPosition(x, y);
+    this._numberText.setPosition(x, y - 2);
   }
 
   _draw() {
@@ -53,7 +53,7 @@ export class Player {
     this.x = x;
     this.y = y;
     this.graphics.setPosition(x, y);
-    this._numberText.setPosition(x, y);
+    this._numberText.setPosition(x, y - 2);
   }
 
   startInvincibility(duration) {
