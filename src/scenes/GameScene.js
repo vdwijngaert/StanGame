@@ -101,7 +101,7 @@ export class GameScene extends Phaser.Scene {
     // Score badge background
     this._scoreBg = this.add.rectangle(width - 70, 28, 120, 36, 0x000000, 0.55)
       .setScrollFactor(0).setDepth(10).setOrigin(0.5);
-    this._scoreText = this.add.text(width - 70, 28, '0m', {
+    this._scoreText = this.add.text(width - 70, 28, '0', {
       fontSize: '18px',
       fontFamily: 'Arial Black, sans-serif',
       color: CONFIG.player.shirtColorHex,
@@ -160,7 +160,7 @@ export class GameScene extends Phaser.Scene {
     this._player.update(delta);
     this._checkCollisions();
     this._score.addDistance(this._difficulty.scrollSpeed * (delta / 1000));
-    this._scoreText.setText(this._score.score + 'm');
+    this._scoreText.setText(String(this._score.score));
     this._levelText.setText('LVL ' + this._difficulty.level);
     this._updateHudHearts();
   }
@@ -254,6 +254,7 @@ export class GameScene extends Phaser.Scene {
       if (Phaser.Math.Distance.Between(px, py, b.x, b.y) < 28 * s) {
         this._score.collectBall();
         this._playGoalAnimation();
+        this._playBallBonusFeedback();
         b.destroy();
         this._balls.splice(i, 1);
       }
@@ -290,6 +291,45 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < this._heartTexts.length; i++) {
       this._heartTexts[i].setAlpha(i < this._lives ? 1 : 0.2);
     }
+  }
+
+  _playBallBonusFeedback() {
+    // Pulse the score badge (text + background) together.
+    this.tweens.killTweensOf([this._scoreText, this._scoreBg]);
+    this._scoreText.setScale(1);
+    this._scoreBg.setScale(1);
+    this.tweens.add({
+      targets: [this._scoreText, this._scoreBg],
+      scale: 1.3,
+      duration: 120,
+      ease: 'Back.easeOut',
+      yoyo: true,
+    });
+
+    // Brief color flash on the score number.
+    this._scoreText.setColor('#FFFFFF');
+    this.time.delayedCall(180, () => {
+      this._scoreText.setColor(CONFIG.player.shirtColorHex);
+    });
+
+    // Floating "+N" popup just below the badge.
+    const bonus = CONFIG.scoring.ballBonus;
+    const pop = this.add.text(this._scoreBg.x, this._scoreBg.y + 26, '+' + bonus, {
+      fontSize: '20px',
+      fontFamily: 'Arial Black, sans-serif',
+      color: CONFIG.player.shirtColorHex,
+      stroke: '#111111',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(20);
+
+    this.tweens.add({
+      targets: pop,
+      y: pop.y + 30,
+      alpha: 0,
+      duration: 700,
+      ease: 'Power1',
+      onComplete: () => pop.destroy(),
+    });
   }
 
   _playGoalAnimation() {
