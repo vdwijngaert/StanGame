@@ -7,6 +7,7 @@ import { Player } from '../entities/Player.js';
 import { Defender } from '../entities/Defender.js';
 import { Ball } from '../entities/Ball.js';
 import { Shield } from '../entities/Shield.js';
+import { VirtualJoystick } from '../systems/VirtualJoystick.js';
 
 const STRIPE_WIDTH = 80;
 const NUM_STRIPES = 14;
@@ -48,12 +49,35 @@ export class GameScene extends Phaser.Scene {
     // --- HUD ---
     this._buildHud(width, height);
 
-    // --- Pointer input ---
-    this.input.on('pointermove', (ptr) => {
-      if (ptr.isDown) this._player.moveTo(ptr.x, ptr.y);
-    });
+    // --- Input ---
+    this._joystick = new VirtualJoystick(CONFIG.controls.joystick);
+    this._joystickBase = this.add.graphics().setDepth(15).setScrollFactor(0).setVisible(false);
+    this._joystickThumb = this.add.graphics().setDepth(15).setScrollFactor(0).setVisible(false);
+
     this.input.on('pointerdown', (ptr) => {
-      this._player.moveTo(ptr.x, ptr.y);
+      this._joystick.onPointerDown(ptr.id, ptr.x, ptr.y);
+      this._renderJoystick();
+    });
+    this.input.on('pointermove', (ptr) => {
+      this._joystick.onPointerMove(ptr.id, ptr.x, ptr.y);
+      this._renderJoystick();
+    });
+    this.input.on('pointerup', (ptr) => {
+      this._joystick.onPointerUp(ptr.id);
+      this._renderJoystick();
+    });
+
+    this._cursors = this.input.keyboard.createCursorKeys();
+
+    // --- Player bounds (clamp to pitch, clear of HUD) ---
+    const scale = CONFIG.player.scale;
+    const halfW = 18 * scale;
+    const halfH = 30 * scale;
+    this._player.setBounds({
+      minX: halfW,
+      minY: 80,
+      maxX: width - halfW,
+      maxY: height - halfH,
     });
   }
 
@@ -84,6 +108,44 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(10);
   }
 
+  _renderJoystick() {
+    const j = this._joystick;
+    if (!j.active) {
+      this._joystickBase.setVisible(false);
+      this._joystickThumb.setVisible(false);
+      return;
+    }
+    const cfg = CONFIG.controls.joystick;
+    this._joystickBase.clear();
+    this._joystickBase.lineStyle(4, 0xffffff, 0.35);
+    this._joystickBase.strokeCircle(j.baseX, j.baseY, cfg.baseRadius);
+    this._joystickBase.setVisible(true);
+
+    this._joystickThumb.clear();
+    this._joystickThumb.fillStyle(0xffffff, 0.55);
+    this._joystickThumb.fillCircle(j.thumbX, j.thumbY, 22);
+    this._joystickThumb.setVisible(true);
+  }
+
+  _inputVector() {
+    if (this._joystick.active) {
+      const v = this._joystick.vector;
+      return { x: v.x, y: v.y };
+    }
+    const c = this._cursors;
+    let x = 0, y = 0;
+    if (c.left.isDown)  x -= 1;
+    if (c.right.isDown) x += 1;
+    if (c.up.isDown)    y -= 1;
+    if (c.down.isDown)  y += 1;
+    if (x !== 0 && y !== 0) {
+      const inv = Math.SQRT1_2;
+      x *= inv;
+      y *= inv;
+    }
+    return { x, y };
+  }
+
   update(time, delta) {
     if (this._gameOver) return;
     this._scrollPitch(delta);
@@ -93,6 +155,9 @@ export class GameScene extends Phaser.Scene {
     }
     this._updateSpawns(delta);
     this._updateEntities(delta);
+    const v = this._inputVector();
+    this._player.setVelocity(v.x * CONFIG.controls.playerMaxSpeed, v.y * CONFIG.controls.playerMaxSpeed);
+    this._player.update(delta);
     this._checkCollisions();
     this._score.addDistance(this._difficulty.scrollSpeed * (delta / 1000));
     this._scoreText.setText(this._score.score + 'm');
