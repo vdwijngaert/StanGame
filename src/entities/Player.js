@@ -21,26 +21,38 @@ export class Player {
 
     this.x = x;
     this.y = y;
+    this._frame = 0;
     this._draw();
     this.graphics.setPosition(x, y);
     this._numberText.setPosition(x, y - 2);
+
+    this._animTimer = scene.time.addEvent({
+      delay: 200,
+      loop: true,
+      callback: () => {
+        this._frame ^= 1;
+        this._draw(this._frame);
+      },
+    });
   }
 
-  _draw() {
+  _draw(frame = 0) {
     const g = this.graphics;
     const { shirtColor, shortsColor, sleeveColor, bootsColor, skinColor } = this._cfg;
     g.clear();
 
+    const leftBootY  = frame === 0 ? 20 : 24;
+    const rightBootY = frame === 0 ? 24 : 20;
     g.fillStyle(bootsColor);
-    g.fillRect(-9, 22, 8, 6);
-    g.fillRect(2, 22, 8, 6);
+    g.fillRect(-9, leftBootY,  8, 6);
+    g.fillRect( 2, rightBootY, 8, 6);
 
     g.fillStyle(shortsColor);
     g.fillRect(-11, 10, 22, 13);
 
     g.fillStyle(sleeveColor);
     g.fillRect(-18, -8, 8, 14);
-    g.fillRect(10, -8, 8, 14);
+    g.fillRect( 10, -8, 8, 14);
 
     g.fillStyle(shirtColor);
     g.fillRect(-11, -10, 22, 22);
@@ -81,6 +93,7 @@ export class Player {
   get isInvincible() { return this._invincible; }
 
   destroy() {
+    if (this._animTimer) this._animTimer.remove();
     this.graphics.destroy();
     this._numberText.destroy();
   }
