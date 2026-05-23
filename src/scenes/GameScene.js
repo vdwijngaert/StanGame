@@ -67,6 +67,8 @@ export class GameScene extends Phaser.Scene {
       fontSize: '16px',
       fontFamily: 'Arial Black, sans-serif',
       color: '#FFD700',
+      stroke: '#111111',
+      strokeThickness: 3,
     }).setScrollFactor(0).setDepth(10);
 
     // Score badge background
