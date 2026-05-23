@@ -6,6 +6,7 @@ import { ScoreManager } from '../systems/ScoreManager.js';
 import { Player } from '../entities/Player.js';
 import { Defender } from '../entities/Defender.js';
 import { Ball } from '../entities/Ball.js';
+import { Shield } from '../entities/Shield.js';
 
 const STRIPE_WIDTH = 80;
 const NUM_STRIPES = 14;
@@ -24,6 +25,8 @@ export class GameScene extends Phaser.Scene {
     this._gameOver = false;
     this._spawnTimer = 0;
     this._ballTimer = 0;
+    this._shields = [];
+    this._shieldTimer = 0;
 
     // --- Pitch ---
     this._stripes = [];
@@ -120,6 +123,11 @@ export class GameScene extends Phaser.Scene {
       this._ballTimer = 0;
       if (Math.random() < 0.5) this._spawnBall();
     }
+    this._shieldTimer += delta;
+    if (this._shieldTimer >= CONFIG.shield.spawnInterval) {
+      this._shieldTimer = 0;
+      if (Math.random() < CONFIG.shield.spawnChance) this._spawnShield();
+    }
   }
 
   _spawnDefender() {
@@ -136,6 +144,12 @@ export class GameScene extends Phaser.Scene {
     this._balls.push(new Ball(this, width + 30, y, this._difficulty.scrollSpeed * 0.7));
   }
 
+  _spawnShield() {
+    const { width, height } = this.scale;
+    const y = Phaser.Math.Between(80, height - 80);
+    this._shields.push(new Shield(this, width + 30, y, this._difficulty.scrollSpeed * 0.7));
+  }
+
   _updateEntities(delta) {
     for (const d of this._defenders) d.update(delta);
     for (const b of this._balls) b.update(delta);
@@ -146,6 +160,11 @@ export class GameScene extends Phaser.Scene {
     });
     this._balls = this._balls.filter(b => {
       if (b.isOffScreen(-30)) { b.destroy(); return false; }
+      return true;
+    });
+    for (const sh of this._shields) sh.update(delta);
+    this._shields = this._shields.filter(sh => {
+      if (sh.isOffScreen(-30)) { sh.destroy(); return false; }
       return true;
     });
   }
@@ -170,6 +189,16 @@ export class GameScene extends Phaser.Scene {
         this._score.collectBall();
         b.destroy();
         this._balls.splice(i, 1);
+      }
+    }
+
+    for (let i = this._shields.length - 1; i >= 0; i--) {
+      const sh = this._shields[i];
+      if (Phaser.Math.Distance.Between(px, py, sh.x, sh.y) < 24 * s) {
+        this._player.startShield(CONFIG.shield.duration);
+        sh.destroy();
+        this._shields.splice(i, 1);
+        break;
       }
     }
   }

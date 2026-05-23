@@ -32,4 +32,9 @@ export const CONFIG = {
   },
   lives: 3,
   invincibilityDuration: 2000, // ms after being hit
+  shield: {
+    spawnInterval: 8000,
+    spawnChance: 0.35,
+    duration: 3000,
+  },
 };

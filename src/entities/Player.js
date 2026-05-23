@@ -76,6 +76,7 @@ export class Player {
     this.graphics.setPosition(x, y);
     this._numberText.setPosition(x, y - 2);
     this._footBall.setPosition(x + 14 * scale, y + 20 * scale);
+    if (this._shieldGlow) this._shieldGlow.setPosition(x, y);
   }
 
   startInvincibility(duration) {
@@ -102,10 +103,29 @@ export class Player {
     });
   }
 
+  startShield(duration) {
+    if (this._shieldGlow) { this._shieldGlow.destroy(); this._shieldGlow = null; }
+    const scale = this._cfg.scale ?? 1;
+    this._shieldGlow = this._scene.add.graphics();
+    this._shieldGlow.fillStyle(0x3b82f6, 0.3);
+    this._shieldGlow.fillCircle(0, 0, 38 * scale);
+    this._shieldGlow.lineStyle(3, 0x60a5fa, 0.9);
+    this._shieldGlow.strokeCircle(0, 0, 38 * scale);
+    this._shieldGlow.setPosition(this.x, this.y);
+    this._shieldGlow.setDepth(4);
+
+    this.startInvincibility(duration);
+
+    this._scene.time.delayedCall(duration, () => {
+      if (this._shieldGlow) { this._shieldGlow.destroy(); this._shieldGlow = null; }
+    });
+  }
+
   get isInvincible() { return this._invincible; }
 
   destroy() {
     if (this._animTimer) this._animTimer.remove();
+    if (this._shieldGlow) this._shieldGlow.destroy();
     this.graphics.destroy();
     this._numberText.destroy();
     this._footBall.destroy();
