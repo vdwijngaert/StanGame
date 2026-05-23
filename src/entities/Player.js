@@ -1,4 +1,6 @@
 // src/entities/Player.js
+import { applyVelocity } from '../systems/movement.js';
+
 export class Player {
   constructor(scene, x, y, cfg) {
     this._scene = scene;
@@ -6,6 +8,9 @@ export class Player {
     this._invincible = false;
     this._flickerTimer = null;
     this._invincibleCallbackTimer = null;
+    this._vx = 0;
+    this._vy = 0;
+    this._bounds = null;
 
     const scale = cfg.scale ?? 1;
 
@@ -77,6 +82,22 @@ export class Player {
     this._numberText.setPosition(x, y - 2);
     this._footBall.setPosition(x + 14 * scale, y + 20 * scale);
     if (this._shieldGlow) this._shieldGlow.setPosition(x, y);
+  }
+
+  setVelocity(vx, vy) {
+    this._vx = vx;
+    this._vy = vy;
+  }
+
+  setBounds(bounds) {
+    this._bounds = bounds;
+  }
+
+  update(deltaMs) {
+    if (!this._bounds) return;
+    if (this._vx === 0 && this._vy === 0) return;
+    const { x, y } = applyVelocity(this.x, this.y, this._vx, this._vy, deltaMs, this._bounds);
+    this.moveTo(x, y);
   }
 
   startInvincibility(duration) {
