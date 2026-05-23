@@ -11,11 +11,14 @@ export class Player {
     this._cfg = cfg;
     this._invincible = false;
     this._flickerTimer = null;
+    this._invincibleCallbackTimer = null;
 
     this.graphics = scene.add.graphics();
     this.x = x;
     this.y = y;
     this._draw();
+    this.graphics.setPosition(x, y);
+    if (this._numberText) this._numberText.setPosition(x, y - 2);
   }
 
   _draw() {
@@ -64,6 +67,7 @@ export class Player {
   startInvincibility(duration) {
     this._invincible = true;
     if (this._flickerTimer) this._flickerTimer.remove();
+    if (this._invincibleCallbackTimer) this._invincibleCallbackTimer.remove();
     let visible = true;
     this._flickerTimer = this._scene.time.addEvent({
       delay: 120,
@@ -74,7 +78,8 @@ export class Player {
         if (this._numberText) this._numberText.setVisible(visible);
       },
     });
-    this._scene.time.delayedCall(duration, () => {
+    this._invincibleCallbackTimer = this._scene.time.delayedCall(duration, () => {
+      if (this._flickerTimer) { this._flickerTimer.remove(); this._flickerTimer = null; }
       this._invincible = false;
       this.graphics.setVisible(true);
       if (this._numberText) this._numberText.setVisible(true);
