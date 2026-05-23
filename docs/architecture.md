@@ -13,7 +13,7 @@ Data passes between scenes via `this.scene.start('Name', { score, highScore, isN
 ## Layers
 
 - **`src/config.js`** — single source of truth for all personalization (colors, numbers, speed, scoring). Change here first.
-- **`src/systems/`** — pure JS classes with no Phaser dependency. Testable in Node via Vitest.
+- **`src/systems/`** — pure JS classes with no Phaser dependency. Testable in Node via Vitest. Includes `DifficultyManager`, `ScoreManager`, `VirtualJoystick` (input state machine), and the `applyVelocity` helper in `movement.js`.
 - **`src/entities/`** — Phaser Graphics wrappers. Each entity owns `this.graphics`, exposes `x`, `y`, and `destroy()`. `Player` additionally owns `this._numberText` (a separate Phaser Text object) that must always be moved/shown/hidden in sync with `this.graphics`.
 - **`src/scenes/`** — Phaser Scene subclasses. `GameScene` owns the game loop: spawns entities, drives `DifficultyManager` and `ScoreManager`, checks collisions, manages lives and HUD.
 
@@ -24,6 +24,7 @@ Data passes between scenes via `this.scene.start('Name', { score, highScore, isN
 - After a hit, `Player.startInvincibility()` sets a flicker timer; `_checkCollisions` is gated on `player.isInvincible`.
 - `DifficultyManager.level` is read-only from outside.
 - High score persists in `localStorage` under key `stan_runner_highscore`.
+- Player movement is velocity-based: `GameScene._inputVector()` returns the joystick vector (or normalized arrow-key vector when the joystick is inactive); `Player.setVelocity` + `Player.update(delta)` integrates and clamps to bounds set in `create()`.
 
 ## Depth layers
 
@@ -32,4 +33,5 @@ Data passes between scenes via `this.scene.start('Name', { score, highScore, isN
 | 0 (default) | Pitch stripes |
 | 5 | Player graphics + number text |
 | 10 | HUD (hearts, score badge) |
+| 15 | Virtual joystick (base ring + thumb nub) |
 | 20 | Transient popups (GOAL, level-up) |
