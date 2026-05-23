@@ -92,6 +92,7 @@ export class Player {
         this.graphics.setVisible(visible);
         this._numberText.setVisible(visible);
         this._footBall.setVisible(visible);
+        if (this._shieldGlow) this._shieldGlow.setVisible(visible);
       },
     });
     this._invincibleCallbackTimer = this._scene.time.delayedCall(duration, () => {
@@ -100,6 +101,7 @@ export class Player {
       this.graphics.setVisible(true);
       this._numberText.setVisible(true);
       this._footBall.setVisible(true);
+      if (this._shieldGlow) this._shieldGlow.setVisible(true);
     });
   }
 

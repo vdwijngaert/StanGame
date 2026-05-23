@@ -170,11 +170,22 @@ export class GameScene extends Phaser.Scene {
   }
 
   _checkCollisions() {
-    if (this._player.isInvincible) return;
-
     const px = this._player.x;
     const py = this._player.y;
     const s = CONFIG.player.scale;
+
+    // Shields can be collected even while invincible
+    for (let i = this._shields.length - 1; i >= 0; i--) {
+      const sh = this._shields[i];
+      if (Phaser.Math.Distance.Between(px, py, sh.x, sh.y) < 24 * s) {
+        this._player.startShield(CONFIG.shield.duration);
+        sh.destroy();
+        this._shields.splice(i, 1);
+        break;
+      }
+    }
+
+    if (this._player.isInvincible) return;
 
     for (const d of this._defenders) {
       if (Phaser.Math.Distance.Between(px, py, d.x, d.y) < 34 * s) {
@@ -189,16 +200,6 @@ export class GameScene extends Phaser.Scene {
         this._score.collectBall();
         b.destroy();
         this._balls.splice(i, 1);
-      }
-    }
-
-    for (let i = this._shields.length - 1; i >= 0; i--) {
-      const sh = this._shields[i];
-      if (Phaser.Math.Distance.Between(px, py, sh.x, sh.y) < 24 * s) {
-        this._player.startShield(CONFIG.shield.duration);
-        sh.destroy();
-        this._shields.splice(i, 1);
-        break;
       }
     }
   }
