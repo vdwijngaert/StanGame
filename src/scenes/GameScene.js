@@ -113,7 +113,9 @@ export class GameScene extends Phaser.Scene {
   _spawnDefender() {
     const { width, height } = this.scale;
     const y = Phaser.Math.Between(60, height - 60);
-    this._defenders.push(new Defender(this, width + 30, y, this._difficulty.scrollSpeed * 0.9));
+    this._defenders.push(
+      new Defender(this, width + 30, y, this._difficulty.scrollSpeed * 0.9, CONFIG.player.scale)
+    );
   }
 
   _spawnBall() {
@@ -141,9 +143,10 @@ export class GameScene extends Phaser.Scene {
 
     const px = this._player.x;
     const py = this._player.y;
+    const s = CONFIG.player.scale;
 
     for (const d of this._defenders) {
-      if (Phaser.Math.Distance.Between(px, py, d.x, d.y) < 34) {
+      if (Phaser.Math.Distance.Between(px, py, d.x, d.y) < 34 * s) {
         this._loseLife();
         return;
       }
@@ -151,7 +154,7 @@ export class GameScene extends Phaser.Scene {
 
     for (let i = this._balls.length - 1; i >= 0; i--) {
       const b = this._balls[i];
-      if (Phaser.Math.Distance.Between(px, py, b.x, b.y) < 28) {
+      if (Phaser.Math.Distance.Between(px, py, b.x, b.y) < 28 * s) {
         this._score.collectBall();
         b.destroy();
         this._balls.splice(i, 1);

@@ -2,8 +2,9 @@ export const CONFIG = {
   player: {
     name: 'Stan',
     number: 10,
-    shirtColor: 0xFFD700,     // Phaser uses hex integers, not strings
-    shirtColorHex: '#FFD700', // for CSS / text rendering
+    scale: 1.75,
+    shirtColor: 0xFFD700,
+    shirtColorHex: '#FFD700',
     shortsColor: 0x111111,
     sleeveColor: 0x111111,
     bootsColor: 0x222222,

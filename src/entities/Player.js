@@ -1,11 +1,5 @@
 // src/entities/Player.js
 export class Player {
-  /**
-   * @param {Phaser.Scene} scene
-   * @param {number} x
-   * @param {number} y
-   * @param {object} cfg  - CONFIG.player
-   */
   constructor(scene, x, y, cfg) {
     this._scene = scene;
     this._cfg = cfg;
@@ -13,48 +7,44 @@ export class Player {
     this._flickerTimer = null;
     this._invincibleCallbackTimer = null;
 
+    const scale = cfg.scale ?? 1;
+
     this.graphics = scene.add.graphics();
+    this.graphics.setScale(scale);
+    this.graphics.setDepth(5);
+
+    this._numberText = scene.add.text(x, y, String(cfg.number), {
+      fontSize: `${Math.round(10 * scale)}px`,
+      fontFamily: 'Arial Black, sans-serif',
+      color: '#111111',
+    }).setOrigin(0.5, 0.5).setDepth(5);
+
     this.x = x;
     this.y = y;
     this._draw();
     this.graphics.setPosition(x, y);
-    if (this._numberText) this._numberText.setPosition(x, y - 2);
-    this.graphics.setDepth(5);
-    if (this._numberText) this._numberText.setDepth(5);
+    this._numberText.setPosition(x, y);
   }
 
   _draw() {
     const g = this.graphics;
-    const { shirtColor, shortsColor, sleeveColor, bootsColor, skinColor, number } = this._cfg;
+    const { shirtColor, shortsColor, sleeveColor, bootsColor, skinColor } = this._cfg;
     g.clear();
 
-    // Boots
     g.fillStyle(bootsColor);
     g.fillRect(-9, 22, 8, 6);
     g.fillRect(2, 22, 8, 6);
 
-    // Shorts
     g.fillStyle(shortsColor);
     g.fillRect(-11, 10, 22, 13);
 
-    // Sleeves
     g.fillStyle(sleeveColor);
     g.fillRect(-18, -8, 8, 14);
     g.fillRect(10, -8, 8, 14);
 
-    // Shirt body
     g.fillStyle(shirtColor);
     g.fillRect(-11, -10, 22, 22);
 
-    // Jersey number
-    const text = this._scene.add.text(0, -2, String(number), {
-      fontSize: '10px',
-      fontFamily: 'Arial Black, sans-serif',
-      color: '#111111',
-    }).setOrigin(0.5, 0.5);
-    this._numberText = text;
-
-    // Head
     g.fillStyle(skinColor);
     g.fillCircle(0, -20, 12);
   }
@@ -63,7 +53,7 @@ export class Player {
     this.x = x;
     this.y = y;
     this.graphics.setPosition(x, y);
-    if (this._numberText) this._numberText.setPosition(x, y - 2);
+    this._numberText.setPosition(x, y);
   }
 
   startInvincibility(duration) {
@@ -77,14 +67,14 @@ export class Player {
       callback: () => {
         visible = !visible;
         this.graphics.setVisible(visible);
-        if (this._numberText) this._numberText.setVisible(visible);
+        this._numberText.setVisible(visible);
       },
     });
     this._invincibleCallbackTimer = this._scene.time.delayedCall(duration, () => {
       if (this._flickerTimer) { this._flickerTimer.remove(); this._flickerTimer = null; }
       this._invincible = false;
       this.graphics.setVisible(true);
-      if (this._numberText) this._numberText.setVisible(true);
+      this._numberText.setVisible(true);
     });
   }
 
@@ -92,6 +82,6 @@ export class Player {
 
   destroy() {
     this.graphics.destroy();
-    if (this._numberText) this._numberText.destroy();
+    this._numberText.destroy();
   }
 }
