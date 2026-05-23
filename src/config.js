@@ -30,6 +30,14 @@ export const CONFIG = {
   },
   lives: 3,
   invincibilityDuration: 2000, // ms after being hit
+  controls: {
+    joystick: {
+      baseRadius: 60,
+      thumbMaxRadius: 50,
+      deadzone: 0.15,
+    },
+    playerMaxSpeed: 350,
+  },
   shield: {
     spawnInterval: 8000,
     spawnChance: 0.35,
