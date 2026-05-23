@@ -21,6 +21,7 @@ export class GameScene extends Phaser.Scene {
     this._defenders = [];
     this._balls = [];
     this._lives = CONFIG.lives;
+    this._gameOver = false;
     this._spawnTimer = 0;
     this._ballTimer = 0;
 
@@ -73,6 +74,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    if (this._gameOver) return;
     this._scrollPitch(delta);
     this._difficulty.update(delta);
     this._updateSpawns(delta);
@@ -158,6 +160,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   _loseLife() {
+    this._gameOver = true;
     this._lives--;
     this._player.startInvincibility(CONFIG.invincibilityDuration);
     if (this._lives <= 0) {

@@ -39,7 +39,7 @@ export class Ball {
   }
 
   isOffScreen(leftBound) {
-    return this.x < leftBound - 30;
+    return this.x < leftBound;
   }
 
   destroy() {

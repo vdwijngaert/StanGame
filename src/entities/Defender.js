@@ -46,7 +46,7 @@ export class Defender {
   }
 
   isOffScreen(leftBound) {
-    return this.x < leftBound - 50;
+    return this.x < leftBound;
   }
 
   destroy() {

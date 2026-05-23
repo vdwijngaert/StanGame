@@ -31,7 +31,7 @@ export class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // High score
-    const isNew = this._score >= this._highScore;
+    const isNew = this._score > this._highScore;
     const hsLabel = isNew ? `🏆 Nieuw record: ${this._highScore}m!` : `Beste: ${this._highScore}m`;
     this.add.text(width / 2, height * 0.48, hsLabel, {
       fontSize: '22px',
