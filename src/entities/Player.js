@@ -34,6 +34,14 @@ export class Player {
         this._draw(this._frame);
       },
     });
+
+    this._footBall = scene.add.graphics();
+    this._footBall.fillStyle(0xffffff, 1);
+    this._footBall.fillCircle(0, 0, 5);
+    this._footBall.lineStyle(1, 0xcccccc, 1);
+    this._footBall.strokeCircle(0, 0, 5);
+    this._footBall.setDepth(4);
+    this._footBall.setPosition(x + 14 * scale, y + 20 * scale);
   }
 
   _draw(frame = 0) {
@@ -64,8 +72,10 @@ export class Player {
   moveTo(x, y) {
     this.x = x;
     this.y = y;
+    const scale = this._cfg.scale ?? 1;
     this.graphics.setPosition(x, y);
     this._numberText.setPosition(x, y - 2);
+    this._footBall.setPosition(x + 14 * scale, y + 20 * scale);
   }
 
   startInvincibility(duration) {
@@ -80,6 +90,7 @@ export class Player {
         visible = !visible;
         this.graphics.setVisible(visible);
         this._numberText.setVisible(visible);
+        this._footBall.setVisible(visible);
       },
     });
     this._invincibleCallbackTimer = this._scene.time.delayedCall(duration, () => {
@@ -87,6 +98,7 @@ export class Player {
       this._invincible = false;
       this.graphics.setVisible(true);
       this._numberText.setVisible(true);
+      this._footBall.setVisible(true);
     });
   }
 
@@ -96,5 +108,6 @@ export class Player {
     if (this._animTimer) this._animTimer.remove();
     this.graphics.destroy();
     this._numberText.destroy();
+    this._footBall.destroy();
   }
 }
