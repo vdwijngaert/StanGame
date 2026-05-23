@@ -63,6 +63,12 @@ export class GameScene extends Phaser.Scene {
       this._heartTexts.push(t);
     }
 
+    this._levelText = this.add.text(18, 48, 'LVL 1', {
+      fontSize: '16px',
+      fontFamily: 'Arial Black, sans-serif',
+      color: '#FFD700',
+    }).setScrollFactor(0).setDepth(10);
+
     // Score badge background
     this._scoreBg = this.add.rectangle(width - 70, 28, 120, 36, 0x000000, 0.55)
       .setScrollFactor(0).setDepth(10).setOrigin(0.5);
@@ -77,12 +83,16 @@ export class GameScene extends Phaser.Scene {
     if (this._gameOver) return;
     this._scrollPitch(delta);
     this._difficulty.update(delta);
+    if (this._difficulty.justLeveledUp) {
+      this._playLevelUpAnimation(this._difficulty.level);
+    }
     this._updateSpawns(delta);
     this._updateEntities(delta);
     this._checkCollisions();
     this._score.addDistance(this._difficulty.scrollSpeed * (delta / 1000));
     if (this._score.checkGoal()) this._playGoalAnimation();
     this._scoreText.setText(this._score.score + 'm');
+    this._levelText.setText('LVL ' + this._difficulty.level);
     this._updateHudHearts();
   }
 
@@ -188,6 +198,26 @@ export class GameScene extends Phaser.Scene {
   _playGoalAnimation() {
     const { width, height } = this.scale;
     const txt = this.add.text(width / 2, height / 2, '⚽ GOAL! +100', {
+      fontSize: '36px',
+      fontFamily: 'Arial Black, sans-serif',
+      color: '#FFD700',
+      stroke: '#111111',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(20);
+
+    this.tweens.add({
+      targets: txt,
+      y: height / 2 - 80,
+      alpha: 0,
+      duration: 1400,
+      ease: 'Power2',
+      onComplete: () => txt.destroy(),
+    });
+  }
+
+  _playLevelUpAnimation(level) {
+    const { width, height } = this.scale;
+    const txt = this.add.text(width / 2, height / 2, `LEVEL ${level}! 🔥`, {
       fontSize: '36px',
       fontFamily: 'Arial Black, sans-serif',
       color: '#FFD700',

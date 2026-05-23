@@ -6,9 +6,11 @@ export class DifficultyManager {
     this.level = 1;
     this.scrollSpeed = cfg.initialSpeed;
     this.spawnInterval = cfg.initialSpawnInterval;
+    this._justLeveledUp = false;
   }
 
   update(deltaMs) {
+    this._justLeveledUp = false;
     this._elapsed += deltaMs;
     const targetLevel = Math.floor(this._elapsed / this._cfg.levelUpInterval) + 1;
     if (targetLevel > this.level) {
@@ -19,6 +21,9 @@ export class DifficultyManager {
         this._cfg.minSpawnInterval,
         this.spawnInterval - this._cfg.spawnIntervalDecrement * gained
       );
+      this._justLeveledUp = true;
     }
   }
+
+  get justLeveledUp() { return this._justLeveledUp; }
 }

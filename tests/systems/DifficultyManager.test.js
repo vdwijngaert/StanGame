@@ -44,4 +44,24 @@ describe('DifficultyManager', () => {
     expect(dm.scrollSpeed).toBe(290);
     expect(dm.spawnInterval).toBe(1750);
   });
+
+  it('justLeveledUp is false initially', () => {
+    expect(dm.justLeveledUp).toBe(false);
+  });
+
+  it('justLeveledUp is true immediately after level-up', () => {
+    dm.update(30000);
+    expect(dm.justLeveledUp).toBe(true);
+  });
+
+  it('justLeveledUp resets to false on next update', () => {
+    dm.update(30000);
+    dm.update(100);
+    expect(dm.justLeveledUp).toBe(false);
+  });
+
+  it('justLeveledUp is false when no level-up occurs', () => {
+    dm.update(1000);
+    expect(dm.justLeveledUp).toBe(false);
+  });
 });
