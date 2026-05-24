@@ -174,6 +174,7 @@ export class Player {
 
     this._scene.time.delayedCall(duration, () => {
       if (this._shieldGlow) { this._shieldGlow.destroy(); this._shieldGlow = null; }
+      this._scene.registry.get('audio')?.play('shieldOff');
     });
   }
 
