@@ -43,4 +43,10 @@ export const CONFIG = {
     spawnChance: 0.35,
     duration: 3000,
   },
+  audio: {
+    masterVolume: 0.4,
+    musicVolume: 0.6,
+    musicBpm: 120,
+    muteStorageKey: 'stan_runner_muted',
+  },
 };
