@@ -31,6 +31,7 @@ export class GameScene extends Phaser.Scene {
     this._ballTimer = 0;
     this._shields = [];
     this._shieldTimer = 0;
+    this._audio = this.registry.get('audio');
 
     // --- Pitch ---
     this._stripes = [];
@@ -98,6 +99,8 @@ export class GameScene extends Phaser.Scene {
       maxX: width - halfW,
       maxY: height - halfH,
     });
+
+    this._audio?.startMusic();
   }
 
   _buildHud(width, height) {
@@ -323,6 +326,7 @@ export class GameScene extends Phaser.Scene {
       if (Phaser.Math.Distance.Between(px, py, sh.x, sh.y) < 24 * s) {
         spawnRing(this, sh.x, sh.y, { color: 0x60a5fa, startRadius: 14, endRadius: 90, duration: 550 });
         spawnBurst(this, sh.x, sh.y, { color: 0x93c5fd, count: 8, distance: 60, radius: 3 });
+        this._audio?.play('shieldOn');
         this._player.startShield(CONFIG.shield.duration);
         sh.destroy();
         this._shields.splice(i, 1);
@@ -335,6 +339,7 @@ export class GameScene extends Phaser.Scene {
       if (Phaser.Math.Distance.Between(px, py, b.x, b.y) < 28 * s) {
         spawnBurst(this, b.x, b.y, { color: 0xffd700, count: 12, distance: 55, radius: 3 });
         this._score.collectBall();
+        this._audio?.play('ball');
         this._playGoalAnimation();
         this._playBallBonusFeedback();
         b.destroy();
@@ -354,8 +359,11 @@ export class GameScene extends Phaser.Scene {
 
   _loseLife() {
     this._lives--;
+    this._audio?.play('hit');
     if (this._lives <= 0) {
       this._gameOver = true;
+      this._audio?.stopMusic();
+      this._audio?.play('gameOver');
       const isNewRecord = this._score.score > this._score.highScore;
       this._score.saveHighScore();
       this.time.delayedCall(600, () => {
@@ -436,6 +444,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   _playLevelUpAnimation(level) {
+    this._audio?.play('levelUp');
     const { width, height } = this.scale;
     const txt = this.add.text(width / 2, height / 2, `LEVEL ${level}! 🔥`, {
       fontSize: '36px',
