@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Stan Dribble Runner">
+  <!-- Yellow rounded-square background (Stan's shirt color) -->
+  <rect width="512" height="512" rx="96" fill="#FFD700"/>
+
+  <!-- White football, sized inside the maskable safe zone (inner 80%) -->
+  <g transform="translate(256 256)">
+    <circle r="160" fill="#FFFFFF" stroke="#111111" stroke-width="10"/>
+
+    <!-- Classic ball pattern: center pentagon + 5 surrounding patches.
+         Coordinates are relative to the (256, 256) translate. -->
+    <polygon points="0,-70 67,-22 41,58 -41,58 -67,-22" fill="#111111"/>
+    <polygon points="0,-160 50,-130 30,-80 -30,-80 -50,-130" fill="#111111"/>
+    <polygon points="160,0 130,40 80,30 80,-30 130,-40" fill="#111111"/>
+    <polygon points="-160,0 -130,-40 -80,-30 -80,30 -130,40" fill="#111111"/>
+    <polygon points="100,140 50,135 60,75 110,75 140,110" fill="#111111"/>
+    <polygon points="-100,140 -140,110 -110,75 -60,75 -50,135" fill="#111111"/>
+  </g>
+
+  <!-- Bold "10" centered on top of the ball, contrasting against the white center pentagon.
+       The center pentagon is dark, so the number is white with a dark outline for legibility. -->
+  <text x="256" y="295"
+        font-family="Impact, 'Arial Black', 'Helvetica Neue', sans-serif"
+        font-size="150" font-weight="900" text-anchor="middle"
+        fill="#FFFFFF" stroke="#111111" stroke-width="4" paint-order="stroke">10</text>
+</svg>
