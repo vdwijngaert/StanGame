@@ -1,6 +1,18 @@
 // src/entities/Player.js
 import { applyVelocity } from '../systems/movement.js';
 
+function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+function lighten(c, amt) {
+  const r = (c >> 16) & 0xff, g = (c >> 8) & 0xff, b = c & 0xff;
+  const t = clamp01(amt);
+  return ((Math.round(r + (255 - r) * t) << 16) | (Math.round(g + (255 - g) * t) << 8) | Math.round(b + (255 - b) * t));
+}
+function darken(c, amt) {
+  const r = (c >> 16) & 0xff, g = (c >> 8) & 0xff, b = c & 0xff;
+  const t = clamp01(amt);
+  return ((Math.round(r * (1 - t)) << 16) | (Math.round(g * (1 - t)) << 8) | Math.round(b * (1 - t)));
+}
+
 export class Player {
   constructor(scene, x, y, cfg) {
     this._scene = scene;
@@ -13,6 +25,11 @@ export class Player {
     this._bounds = null;
 
     const scale = cfg.scale ?? 1;
+
+    this._shadow = scene.add.graphics().setDepth(4);
+    this._shadow.fillStyle(0x000000, 0.4);
+    this._shadow.fillEllipse(0, 30 * scale, 36 * scale, 10 * scale);
+    this._shadow.setPosition(x, y);
 
     this.graphics = scene.add.graphics();
     this.graphics.setScale(scale);
@@ -60,24 +77,38 @@ export class Player {
     g.fillRect(-9, leftBootY,  8, 6);
     g.fillRect( 2, rightBootY, 8, 6);
 
-    g.fillStyle(shortsColor);
+    // Shorts with subtle gradient (top lit).
+    const shortsTop = lighten(shortsColor, 0.25);
+    g.fillGradientStyle(shortsTop, shortsTop, shortsColor, shortsColor, 1);
     g.fillRect(-11, 10, 22, 13);
 
-    g.fillStyle(sleeveColor);
+    // Sleeves with gradient.
+    const sleeveTop = lighten(sleeveColor, 0.3);
+    g.fillGradientStyle(sleeveTop, sleeveTop, sleeveColor, sleeveColor, 1);
     g.fillRect(-18, -8, 8, 14);
     g.fillRect( 10, -8, 8, 14);
 
-    g.fillStyle(shirtColor);
+    // Shirt with vertical gradient (floodlit feel).
+    const shirtTop = lighten(shirtColor, 0.2);
+    const shirtBot = darken(shirtColor, 0.15);
+    g.fillGradientStyle(shirtTop, shirtTop, shirtBot, shirtBot, 1);
     g.fillRect(-11, -10, 22, 22);
 
-    g.fillStyle(skinColor);
+    // Head with subtle radial-ish gradient via two circles.
+    g.fillStyle(darken(skinColor, 0.2));
     g.fillCircle(0, -20, 12);
+    g.fillStyle(skinColor);
+    g.fillCircle(-1, -22, 10);
+    // Rim highlight on top of head.
+    g.fillStyle(0xffffff, 0.35);
+    g.fillCircle(-3, -26, 3);
   }
 
   moveTo(x, y) {
     this.x = x;
     this.y = y;
     const scale = this._cfg.scale ?? 1;
+    this._shadow.setPosition(x, y);
     this.graphics.setPosition(x, y);
     this._numberText.setPosition(x, y - 2);
     this._footBall.setPosition(x + 14 * scale, y + 20 * scale);
@@ -113,6 +144,7 @@ export class Player {
         this.graphics.setVisible(visible);
         this._numberText.setVisible(visible);
         this._footBall.setVisible(visible);
+        this._shadow.setVisible(visible);
         if (this._shieldGlow) this._shieldGlow.setVisible(visible);
       },
     });
@@ -122,6 +154,7 @@ export class Player {
       this.graphics.setVisible(true);
       this._numberText.setVisible(true);
       this._footBall.setVisible(true);
+      this._shadow.setVisible(true);
       if (this._shieldGlow) this._shieldGlow.setVisible(true);
     });
   }
@@ -149,6 +182,7 @@ export class Player {
   destroy() {
     if (this._animTimer) this._animTimer.remove();
     if (this._shieldGlow) this._shieldGlow.destroy();
+    this._shadow.destroy();
     this.graphics.destroy();
     this._numberText.destroy();
     this._footBall.destroy();
