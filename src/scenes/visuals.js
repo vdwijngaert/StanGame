@@ -125,3 +125,51 @@ export function spawnRing(scene, x, y, opts = {}) {
     onComplete: () => ring.destroy(),
   });
 }
+
+// Creates a small speaker icon that toggles audio.muted on click.
+// Returns the container so the caller can position/destroy it.
+// Position is set by the caller via container.setPosition(x, y).
+export function createMuteButton(scene, audio) {
+  const container = scene.add.container(0, 0).setDepth(10).setScrollFactor(0);
+
+  // Invisible hit area (44x44 for fat fingers).
+  const hit = scene.add.rectangle(0, 0, 44, 44, 0x000000, 0).setInteractive({ useHandCursor: true });
+  container.add(hit);
+
+  const icon = scene.add.graphics();
+  container.add(icon);
+
+  function redraw() {
+    icon.clear();
+    const muted = !!audio?.isMuted();
+    const color = 0xFFD700;
+    // Speaker trapezoid body.
+    icon.fillStyle(color, 1);
+    icon.fillRect(-10, -5, 6, 10);          // base
+    icon.fillTriangle(-4, -5, 4, -10, 4, 10); // cone
+    if (!muted) {
+      // Two arcs (sound waves).
+      icon.lineStyle(2, color, 1);
+      icon.beginPath(); icon.arc(6, 0, 5, -Math.PI/3, Math.PI/3); icon.strokePath();
+      icon.beginPath(); icon.arc(6, 0, 9, -Math.PI/3, Math.PI/3); icon.strokePath();
+    } else {
+      // Red diagonal slash.
+      icon.lineStyle(3, 0xef4444, 1);
+      icon.beginPath();
+      icon.moveTo(-12, -10);
+      icon.lineTo(12, 10);
+      icon.strokePath();
+    }
+  }
+  redraw();
+
+  hit.on('pointerdown', () => {
+    audio?.unlock();
+    audio?.toggleMute();
+    redraw();
+  });
+
+  // Expose for callers that want to force a redraw (e.g. after entering a scene).
+  container.redraw = redraw;
+  return container;
+}
