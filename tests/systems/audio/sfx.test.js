@@ -18,3 +18,23 @@ describe('SFX.ball', () => {
     expect(freqs).toContain(659); // E5
   });
 });
+
+describe('SFX additional patches', () => {
+  const cases = [
+    ['hit',        { minOsc: 1 }],
+    ['levelUp',    { minOsc: 3 }],
+    ['shieldOn',   { minOsc: 2 }],
+    ['shieldOff',  { minOsc: 1 }],
+    ['gameOver',   { minOsc: 4 }],
+  ];
+  for (const [name, { minOsc }] of cases) {
+    it(`${name} schedules at least ${minOsc} oscillator(s)`, () => {
+      const ctx = createMockAudioContext();
+      const dest = ctx.createGain();
+      ctx._calls.length = 0;
+      SFX[name](ctx, dest);
+      const starts = ctx._calls.filter(c => c[0] === 'osc' && c[1] === 'start');
+      expect(starts.length).toBeGreaterThanOrEqual(minOsc);
+    });
+  }
+});
