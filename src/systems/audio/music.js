@@ -32,3 +32,80 @@ for (let bar = 0; bar < BARS_PER_LOOP; bar++) {
     });
   }
 }
+
+// Sequencer: schedules notes ahead of AudioContext.currentTime using a sorted cursor.
+// The full pattern is pre-flattened into one list sorted by absolute beat. A `nextNoteIndex`
+// cursor advances through the list; when it wraps, `loopStart` advances by one loop length.
+// A 25 ms setInterval keeps the schedule window topped up.
+
+const TICK_MS = 25;
+
+export function createSequencer(ctx, dest, opts = {}) {
+  const bpm = opts.bpm ?? 120;
+  const lookAhead = opts.scheduleAheadSeconds ?? 0.1;
+  const secondsPerBeat = 60 / bpm;
+  const loopSeconds = secondsPerBeat * BEATS_PER_BAR * BARS_PER_LOOP;
+
+  const allNotes = [...BASS_PATTERN, ...ARP_PATTERN]
+    .map(n => ({ ...n, absBeat: n.bar * BEATS_PER_BAR + n.beat }))
+    .sort((a, b) => a.absBeat - b.absBeat);
+
+  let running = false;
+  let loopStart = 0;
+  let nextNoteIndex = 0;
+  let tickHandle = null;
+
+  function emit(note, absTime) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = note.wave;
+    osc.frequency.setValueAtTime(note.freq, absTime);
+    gain.gain.setValueAtTime(0.0001, absTime);
+    gain.gain.exponentialRampToValueAtTime(0.25, absTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, absTime + note.duration);
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.start(absTime);
+    osc.stop(absTime + note.duration + 0.02);
+  }
+
+  function tick() {
+    if (!running) return;
+    const horizon = ctx.currentTime + lookAhead;
+    // Safety bound: never schedule more than the full loop's notes in one tick.
+    let safety = allNotes.length + 1;
+    while (safety-- > 0) {
+      const note = allNotes[nextNoteIndex];
+      const absTime = loopStart + note.absBeat * secondsPerBeat;
+      if (absTime >= horizon) break;
+      emit(note, absTime);
+      nextNoteIndex++;
+      if (nextNoteIndex >= allNotes.length) {
+        nextNoteIndex = 0;
+        loopStart += loopSeconds;
+      }
+    }
+  }
+
+  return {
+    start() {
+      if (running) return;
+      running = true;
+      loopStart = ctx.currentTime;
+      nextNoteIndex = 0;
+      tick();
+      if (typeof setInterval === 'function') {
+        tickHandle = setInterval(tick, TICK_MS);
+      }
+    },
+    stop() {
+      running = false;
+      if (tickHandle !== null && typeof clearInterval === 'function') {
+        clearInterval(tickHandle);
+        tickHandle = null;
+      }
+    },
+    isRunning() { return running; },
+    _tick: tick,
+  };
+}

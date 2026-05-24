@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { BASS_PATTERN, ARP_PATTERN, BEATS_PER_BAR, BARS_PER_LOOP } from '../../../src/systems/audio/music.js';
+import { createSequencer } from '../../../src/systems/audio/music.js';
+import { createMockAudioContext } from '../../_mocks/audioContext.js';
 
 describe('music patterns', () => {
   it('exports an 8-bar loop in 4/4', () => {
@@ -19,5 +21,44 @@ describe('music patterns', () => {
     expect(bar0.length).toBe(8);
     const beats = bar0.map(n => n.beat).sort((a, b) => a - b);
     expect(beats).toEqual([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]);
+  });
+});
+
+describe('createSequencer', () => {
+  it('start() schedules the first batch of notes', () => {
+    const ctx = createMockAudioContext();
+    const dest = ctx.createGain();
+    const seq = createSequencer(ctx, dest, { bpm: 120, scheduleAheadSeconds: 0.2 });
+
+    ctx._calls.length = 0;
+    seq.start();
+
+    const oscStarts = ctx._calls.filter(c => c[0] === 'osc' && c[1] === 'start');
+    expect(oscStarts.length).toBeGreaterThan(0);
+
+    seq.stop();
+  });
+
+  it('start() is idempotent', () => {
+    const ctx = createMockAudioContext();
+    const dest = ctx.createGain();
+    const seq = createSequencer(ctx, dest, { bpm: 120, scheduleAheadSeconds: 0.2 });
+
+    seq.start();
+    ctx._calls.length = 0;
+    seq.start(); // should be no-op
+    const oscStarts = ctx._calls.filter(c => c[0] === 'osc' && c[1] === 'start');
+    expect(oscStarts.length).toBe(0);
+
+    seq.stop();
+  });
+
+  it('stop() clears scheduling timer (no new notes after stop)', () => {
+    const ctx = createMockAudioContext();
+    const dest = ctx.createGain();
+    const seq = createSequencer(ctx, dest, { bpm: 120, scheduleAheadSeconds: 0.2 });
+    seq.start();
+    seq.stop();
+    expect(seq.isRunning()).toBe(false);
   });
 });
