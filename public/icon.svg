@@ -12,8 +12,8 @@
     <polygon points="0,-160 50,-130 30,-80 -30,-80 -50,-130" fill="#111111"/>
     <polygon points="160,0 130,40 80,30 80,-30 130,-40" fill="#111111"/>
     <polygon points="-160,0 -130,-40 -80,-30 -80,30 -130,40" fill="#111111"/>
-    <polygon points="100,140 50,135 60,75 110,75 140,110" fill="#111111"/>
-    <polygon points="-100,140 -140,110 -110,75 -60,75 -50,135" fill="#111111"/>
+    <polygon points="90,126 45,121 54,67 99,67 124,98" fill="#111111"/>
+    <polygon points="-90,126 -124,98 -99,67 -54,67 -45,121" fill="#111111"/>
   </g>
 
   <!-- Bold "10" centered on top of the ball, contrasting against the white center pentagon.
