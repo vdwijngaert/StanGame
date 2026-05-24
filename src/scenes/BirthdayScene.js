@@ -1,6 +1,7 @@
 // src/scenes/BirthdayScene.js
 import Phaser from 'phaser';
 import { CONFIG } from '../config.js';
+import { createMuteButton } from './visuals.js';
 
 export class BirthdayScene extends Phaser.Scene {
   constructor() { super('BirthdayScene'); }
@@ -48,5 +49,9 @@ export class BirthdayScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     btn.on('pointerdown', () => this.scene.start('GameScene'));
+
+    const audio = this.registry.get('audio');
+    const muteBtn = createMuteButton(this, audio);
+    muteBtn.setPosition(width - 20, 32);
   }
 }

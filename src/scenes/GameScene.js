@@ -8,7 +8,7 @@ import { Defender } from '../entities/Defender.js';
 import { Ball } from '../entities/Ball.js';
 import { Shield } from '../entities/Shield.js';
 import { VirtualJoystick } from '../systems/VirtualJoystick.js';
-import { drawRoundedGradientPanel, spawnBurst, spawnRing } from './visuals.js';
+import { drawRoundedGradientPanel, spawnBurst, spawnRing, createMuteButton } from './visuals.js';
 
 const STRIPE_WIDTH = 80;
 const NUM_STRIPES = 14;
@@ -165,6 +165,10 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'Arial Black, sans-serif',
       color: CONFIG.player.shirtColorHex,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(10);
+
+    // Mute button — below the score badge, top-right.
+    const muteBtn = createMuteButton(this, this._audio);
+    muteBtn.setPosition(width - 20, 76);
   }
 
   _buildVignette(width, height) {

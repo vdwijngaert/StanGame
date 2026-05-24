@@ -1,7 +1,7 @@
 // src/scenes/GameOverScene.js
 import Phaser from 'phaser';
 import { CONFIG } from '../config.js';
-import { drawRoundedGradientPanel } from './visuals.js';
+import { drawRoundedGradientPanel, createMuteButton } from './visuals.js';
 
 export class GameOverScene extends Phaser.Scene {
   constructor() { super('GameOverScene'); }
@@ -89,5 +89,9 @@ export class GameOverScene extends Phaser.Scene {
       fontFamily: 'Arial, sans-serif',
       color: '#555555',
     }).setOrigin(0.5);
+
+    const audio = this.registry.get('audio');
+    const muteBtn = createMuteButton(this, audio);
+    muteBtn.setPosition(width - 20, 32);
   }
 }
