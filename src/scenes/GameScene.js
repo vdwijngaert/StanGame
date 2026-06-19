@@ -242,13 +242,16 @@ export class GameScene extends Phaser.Scene {
     this._player.setVelocity(v.x * CONFIG.controls.playerMaxSpeed, v.y * CONFIG.controls.playerMaxSpeed);
     this._player.update(delta);
     this._checkCollisions();
-    this._score.addDistance(this._difficulty.scrollSpeed * (delta / 1000));
-    const scoreStr = String(this._score.score);
-    this._scoreText.setText(scoreStr);
-    this._scoreShadow.setText(scoreStr);
-    this._levelText.setText('LVL ' + this._difficulty.level);
-    this._updateHudHearts();
-    this._floodlight.setPosition(this._player.x, this._player.y);
+
+    if(!this._gameOver) {
+      this._score.addDistance(this._difficulty.scrollSpeed * (delta / 1000));
+      const scoreStr = String(this._score.score);
+      this._scoreText.setText(scoreStr);
+      this._scoreShadow.setText(scoreStr);
+      this._levelText.setText('LVL ' + this._difficulty.level);
+      this._updateHudHearts();
+      this._floodlight.setPosition(this._player.x, this._player.y);
+    }
   }
 
   _scrollPitch(delta) {
